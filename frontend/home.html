@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Welcome - Interview Portal</title>
+<style>
+:root{
+  --bg-1:#07070a;
+  --bg-2:#0f1720;
+  --panel:#0b1220;
+  --neon:#00d4ff;
+  --neon-2:#00a8ff;
+  --muted:#97a6b2;
+  --accent-glow: 0 6px 40px rgba(0,212,255,0.08), inset 0 1px 0 rgba(255,255,255,0.02);
+  --glass: rgba(255,255,255,0.03);
+  --radius:12px;
+  --shadow-lg: 0 12px 40px rgba(2,6,23,0.6);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(160deg,var(--bg-1) 0%,var(--bg-2) 100%);color:#e6f7ff}
+.wrap{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:36px;
+}
+.card{
+  width:500px;
+  max-width:95%;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));
+  border-radius:16px;
+  padding:22px;
+  box-shadow:var(--shadow-lg);
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.left{
+  padding:18px;
+  border-radius:12px;
+  background:linear-gradient(180deg, rgba(0,0,0,0.22), rgba(255,255,255,0.02));
+  border:1px solid rgba(0,168,255,0.08);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:stretch;
+  text-align:center;
+}
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+}
+.logo{
+  width:56px;height:56px;border-radius:10px;
+  background:linear-gradient(135deg,var(--neon),var(--neon-2));
+  box-shadow:0 6px 30px rgba(0,168,255,0.16);
+  display:flex;align-items:center;justify-content:center;font-weight:700;color:#041b23;font-size:20px;
+}
+.brand h2{margin:0;font-size:16px}
+.brand p{margin:0;font-size:12px;color:var(--muted)}
+label{font-size:13px;color:var(--muted);margin-top:6px;text-align:left;}
+input[type="text"]{
+  padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+  background:var(--glass);color:#eafcff;outline:none;font-size:14px;
+  transition: box-shadow .18s, border-color .18s;
+  width:100%;
+  margin-top:6px;
+}
+input[type="text"]:focus{
+  box-shadow: 0 6px 30px rgba(0,212,255,0.06);
+  border-color: rgba(0,212,255,0.28);
+}
+.start-btn{
+  margin-top:12px;padding:12px;border-radius:10px;background:linear-gradient(90deg,var(--neon),var(--neon-2));
+  color:#04202a;border:none;font-weight:700;cursor:pointer;font-size:14px;
+  box-shadow:var(--accent-glow);
+  transition: all 0.2s ease;
+}
+.start-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,212,255,0.25);
+}
+.start-btn:active{
+  transform: translateY(0);
+}
+.instructions{
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align:left;
+}
+.history{
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align:left;
+}
+@media (max-width:500px){
+  .card{width:95%;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="left">
+      <div class="brand">
+        <div class="logo">AI</div>
+        <div>
+          <h2>Welcome!</h2>
+          <p style="color:var(--muted)">Enter your name to continue</p>
+        </div>
+      </div>
+
+      <label for="candidateName">Your Name</label>
+      <input type="text" id="candidateName" placeholder="Enter your name">
+
+      <div class="instructions">
+        <p><strong>Practice Interview:</strong> Simulates a real interview, provides feedback on wrong answers.</p>
+        <p><strong>Assessment:</strong> Tests your knowledge with timed questions.</p>
+      </div>
+
+      <div class="history" id="history"></div>
+<div id="historySection">
+    <h3>Interview History</h3>
+    <ul id="historyList"></ul>
+</div>
+
+      <button id="practiceBtn" class="start-btn">Practice Interview</button>
+      <button id="assessmentBtn" class="start-btn">Take Assessment</button>
+    </div>
+  </div>
+</div>
+
+<script>const practiceBtn = document.getElementById('practiceBtn');
+const assessmentBtn = document.getElementById('assessmentBtn');
+const candidateName = document.getElementById('candidateName');
+const historyDiv = document.getElementById('history');
+
+/* ---------------------- SPEECH ---------------------- */
+function speakText(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    speechSynthesis.speak(utterance);
+}
+
+/* ---------------------- SAVE SESSION ---------------------- */
+function saveSession(option) {
+    const time = new Date().toLocaleString();
+    sessionStorage.setItem('lastOption', option);
+    sessionStorage.setItem('lastTime', time);
+}
+
+/* ---------------------- DISPLAY HOME HISTORY ---------------------- */
+window.addEventListener("DOMContentLoaded", () => {
+    const practiceList = document.getElementById("practiceHistoryList");
+    const assessmentList = document.getElementById("assessmentHistoryList");
+
+    /* ---------- PRACTICE INTERVIEW HISTORY ---------- */
+    const lastPracticeScore = sessionStorage.getItem("lastScore");
+    const lastPracticeFeedback = sessionStorage.getItem("lastFeedback");
+
+    if (lastPracticeScore && lastPracticeFeedback) {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            Practice Interview — 
+            Score: <strong>${lastPracticeScore}</strong> — 
+            Feedback: ${lastPracticeFeedback}
+        `;
+        practiceList.appendChild(li);
+
+        sessionStorage.removeItem("lastScore");
+        sessionStorage.removeItem("lastFeedback");
+    }
+
+    /* ---------- ASSESSMENT HISTORY ---------- */
+    const assessmentRole = sessionStorage.getItem("assessmentRole");
+    const assessmentScore = sessionStorage.getItem("assessmentScore");
+
+    if (assessmentRole && assessmentScore) {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            Assessment — 
+            Role: <strong>${assessmentRole}</strong> — 
+            Score: <strong>${assessmentScore}</strong>
+        `;
+        assessmentList.appendChild(li);
+
+        sessionStorage.removeItem("assessmentRole");
+        sessionStorage.removeItem("assessmentScore");
+    }
+});
+
+/* ---------------------- LAST SESSION DISPLAY ---------------------- */
+function displayHistory() {
+    const lastOption = sessionStorage.getItem('lastOption');
+    const lastTime = sessionStorage.getItem('lastTime');
+
+    if (lastOption && lastTime) {
+        historyDiv.innerHTML = `<strong>Last Session:</strong> ${lastOption} at ${lastTime}`;
+    } else {
+        historyDiv.innerHTML = `<strong>No previous session</strong>`;
+    }
+}
+displayHistory();
+
+/* ---------------------- PRACTICE BUTTON ---------------------- */
+practiceBtn.addEventListener('click', async () => {
+    const name = candidateName.value.trim();
+    if (!name) {
+        await showNeonAlert("Please enter your name.", "Name Required");
+        candidateName.focus();
+        return;
+    }
+
+    speakText(`Welcome ${name}! You have selected Practice Interview.`);
+    sessionStorage.setItem('candidateName', name);
+    saveSession("Practice Interview");
+
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 3000);
+});
+
+/* ---------------------- ASSESSMENT BUTTON ---------------------- */
+assessmentBtn.addEventListener('click', async () => {
+    const name = candidateName.value.trim();
+    if (!name) {
+        await showNeonAlert("Please enter your name.", "Name Required");
+        candidateName.focus();
+        return;
+    }
+
+    speakText(`Welcome ${name}! You have selected Assessment.`);
+    sessionStorage.setItem('candidateName', name);
+    saveSession("Assessment");
+
+    setTimeout(() => {
+        window.location.href = 'assessment.html';
+    }, 3000);
+});
+// --- Assessment History ---
+const aRole = sessionStorage.getItem("lastRole");
+const aScore = sessionStorage.getItem("lastScore");
+const aPercent = sessionStorage.getItem("lastPercentage");
+
+if (aRole && aScore) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+        Assessment — 
+        <strong>Role:</strong> ${aRole} — 
+        <strong>Score:</strong> ${aScore} (${aPercent})
+    `;
+    historyList.appendChild(li);
+
+    // Clear after displaying once
+    sessionStorage.removeItem("lastRole");
+    sessionStorage.removeItem("lastScore");
+    sessionStorage.removeItem("lastPercentage");
+}
+
+</script>
+</body>
+</html>

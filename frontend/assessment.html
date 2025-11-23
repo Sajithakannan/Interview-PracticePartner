@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assessment - Interview Portal</title>
+<style>
+:root {
+  --bg-1:#07070a;
+  --bg-2:#0f1720;
+  --neon:#00d4ff;
+  --neon-2:#00a8ff;
+  --muted:#97a6b2;
+  --glass: rgba(255,255,255,0.03);
+  --radius:12px;
+  --shadow-lg:0 12px 40px rgba(2,6,23,0.6);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+body{margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,var(--bg-1), var(--bg-2)); color:#e6f7ff;}
+.container{width:500px; max-width:95%; padding:20px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015)); border-radius:16px; box-shadow:var(--shadow-lg);}
+.hidden{display:none;}
+label{display:block; margin-top:12px; color:var(--muted);}
+select{width:100%; padding:10px; border-radius:10px; border:1px solid rgba(171, 225, 241, 0.04); background:var(--glass); color:#eafcff; margin-top:6px;}
+button{margin-top:20px; padding:12px; border:none; border-radius:10px; cursor:pointer; background:linear-gradient(90deg,var(--neon),var(--neon-2)); color:#04202a; font-weight:700; box-shadow:0 6px 40px rgba(0,212,255,0.08);}
+.timer{margin-top:10px; font-weight:bold; color:var(--neon);}
+.feedback{margin-top:20px; padding:10px; background:rgba(0,0,0,0.15); border-radius:10px;}
+.question{margin-top:20px; font-size:16px;}
+#progressBar {
+  transition: width 0.4s ease;
+}
+
+select {
+  width: 100%;
+  padding: 14px 18px;       /* bigger padding */
+  font-size: 16px;          /* bigger text */
+  border-radius: var(--radius);
+  border: 1px solid rgba(0,212,255,0.2);
+  background: rgba(1, 40, 43, 0.3);  /* darker background for visibility */
+  color: #8cd7fa;           /* light text for contrast */
+  margin-top: 6px;
+  appearance: none;         /* remove default arrow styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-align: left;         /* align text to left */
+}
+select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background-color: var(--bg-2);  /* Dark background */
+  color: #e6f7ff;                 /* Light text */
+  font-size: 16px;                 /* Bigger text */
+  margin-top: 6px;
+  appearance: none;                /* Remove default arrow for consistency */
+}
+
+select option {
+  background-color: var(--bg-2);  /* Match dropdown background */
+  color: #9cd4ee;                 /* Match text color */
+  font-size: 16px;
+}
+
+/* Optional: Custom arrow */
+select::-ms-expand { display: none; } /* Remove arrow in IE/Edge */
+
+/* Optional: Custom dropdown arrow */
+select::after {
+  content: "▼";
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: var(--neon);
+}
+/* Neon Alert Overlay */
+.neon-alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(7, 7, 10, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.neon-alert {
+    background: linear-gradient(180deg, rgba(11, 18, 32, 0.95), rgba(15, 23, 32, 0.95));
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 16px;
+    padding: 28px;
+    width: 380px;
+    max-width: 90%;
+    box-shadow: 
+        0 20px 60px rgba(2, 6, 23, 0.8),
+        0 0 0 1px rgba(0, 212, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.neon-alert h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #00d4ff;
+}
+
+.neon-alert p {
+    margin: 0;
+    font-size: 14px;
+    color: #97a6b2;
+    text-align: center;
+}
+
+.neon-alert-btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    background: linear-gradient(90deg, #00d4ff, #00a8ff);
+    color: #04202a;
+}
+
+.neon-alert-icon {
+    font-size: 48px;
+    color: #00d4ff;
+    margin-bottom: 10px;
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- Role Selection -->
+  <div id="roleSelection">
+    <h2>Select Your Role</h2>
+    <label for="role">Role:</label>
+    <select id="role">
+      <option value="">--Select Role--</option>
+      <option value="frontend">Frontend Developer</option>
+      <option value="backend">Backend Developer</option>
+      <option value="sales">Sales</option>
+    </select>
+    <button id="startAssessment">Start Assessment</button>
+  </div>
+
+  <!-- Assessment Questions -->
+ <!-- Instructions -->
+<div id="instructions" style="margin-bottom:15px; padding:10px; background: rgba(0,0,0,0.15); border-radius:10px; color:#b0e0ff;">
+  <h3>Instructions:</h3>
+  <ol>
+    <li>Read each question carefully before answering.</li>
+    <li>You can type your answer or use the microphone to speak.</li>
+    <li>Answer as completely and accurately as possible; partial answers may not earn full points.</li>
+    <li>After completion of answers click on Submitting.</li>
+    <li>Autosubmitting is enabled. All the best</li>
+  </ol>
+</div>
+
+<div id="assessmentSection" class="hidden">
+    <!-- Progress Bar -->
+<div id="progressContainer" style="width:100%; background: rgba(255,255,255,0.1); border-radius:10px; margin-bottom:15px; height:16px;">
+  <div id="progressBar" style="width:0%; height:100%; background: var(--neon); border-radius:10px;"></div>
+</div>
+
+  <h2>Assessment</h2>
+  <div class="timer">Time left: <span id="timeLeft">30</span>s</div>
+  <div class="question" id="questionText"></div>
+
+  <!-- Answer input -->
+  <textarea id="answerInput" rows="3" placeholder="Speak or type your answer..." style="width:100%; margin-top:10px; padding:10px; border-radius:10px; border:1px solid rgba(171, 225, 241,0.2); background: rgba(1, 40, 43,0.3); color:#eafcff;"></textarea>
+
+  <!-- Mic button -->
+  <button id="micBtn" style="margin-top:10px; background:var(--neon); color:#04202a; font-weight:700;">🎤 Speak</button>
+
+  <button id="submitAnswer">Submit Answer</button>
+</div>
+
+
+  <!-- Feedback Section -->
+  <div id="feedbackSection" class="hidden">
+    <h2>Assessment Complete</h2>
+    <div class="feedback" id="feedbackText"></div>
+    <button id="finishBtn">OK</button>
+  </div>
+
+</div>
+
+<script>
+const roleSelection = document.getElementById('roleSelection');
+const assessmentSection = document.getElementById('assessmentSection');
+const feedbackSection = document.getElementById('feedbackSection');
+
+const startBtn = document.getElementById('startAssessment');
+const submitAnswerBtn = document.getElementById('submitAnswer');
+const finishBtn = document.getElementById('finishBtn');
+
+const roleSelect = document.getElementById('role');
+const questionText = document.getElementById('questionText');
+const timeLeft = document.getElementById('timeLeft');
+const feedbackText = document.getElementById('feedbackText');
+const answerInput = document.getElementById('answerInput');
+const micBtn = document.getElementById('micBtn');
+
+let currentQuestion = 0;
+let timer;
+let userAnswers = [];
+let recognizing = false;
+let recognition;
+let speechUnlocked = false;
+
+// Must be called once on user gesture
+function unlockSpeech() {
+    if (!speechUnlocked) {
+        const test = new SpeechSynthesisUtterance("Starting your assessment");
+        speechSynthesis.speak(test);
+        speechUnlocked = true;
+    }
+}
+
+// Force-load voices properly
+function loadVoices() {
+    return new Promise(resolve => {
+        let voices = speechSynthesis.getVoices();
+        if (voices.length) {
+            resolve(voices);
+            return;
+        }
+        speechSynthesis.onvoiceschanged = () => resolve(speechSynthesis.getVoices());
+    });
+}
+
+async function speakText(text) {
+    if (!speechUnlocked) return; // prevent blocked playback
+
+    await loadVoices();
+
+    speechSynthesis.cancel();
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-IN";
+    utter.rate = 1;
+    speechSynthesis.speak(utter);
+}
+
+// Example questions and correct answers
+const questions = {
+  frontend: [
+    "What is the difference between var, let, and const in JavaScript?",
+    "Explain event bubbling in JS.",
+    "What is the virtual DOM?",
+    "Difference between inline and block elements?",
+    "What is CSS Flexbox?",
+    "Explain CSS Grid.",
+    "What are Promises in JS?",
+    "Difference between == and ===?",
+    "What is React Hook?",
+    "Explain CORS."
+  ],
+  backend: [
+    "Explain RESTful API.",
+    "Difference between SQL and NoSQL.",
+    "What is a middleware?",
+    "What is authentication vs authorization?",
+    "Explain MVC architecture.",
+    "What is a database index?",
+    "Difference between GET and POST requests.",
+    "What is JWT?",
+    "Explain caching in backend.",
+    "What is a web server?"
+  ],
+  sales: [
+    "What is B2B sales?",
+    "Explain CRM.",
+    "What is lead generation?",
+    "Difference between inbound and outbound sales?",
+    "What is cold calling?",
+    "Explain sales funnel.",
+    "How do you handle objections?",
+    "What is upselling?",
+    "Explain customer retention.",
+    "How do you close a deal?"
+  ]
+};
+
+const correctAnswers = {
+  frontend: [
+    "var, let, const: var is function-scoped, let/const are block-scoped; const cannot be reassigned",
+    "Event bubbling is when an event propagates from child to parent elements",
+    "Virtual DOM is a lightweight copy of real DOM used by frameworks like React",
+    "Inline elements do not start on a new line; block elements do",
+    "Flexbox is CSS layout model for aligning items in rows/columns",
+    "CSS Grid is for 2D layouts with rows and columns",
+    "Promises represent asynchronous operations in JS",
+    "== checks value, === checks value and type",
+    "React Hook is a function that lets you use state or lifecycle features",
+    "CORS is Cross-Origin Resource Sharing, controls access to resources"
+  ],
+  backend: [
+    "RESTful API is an API that uses HTTP requests for CRUD operations",
+    "SQL is relational, NoSQL is non-relational",
+    "Middleware is software that runs between request and response",
+    "Authentication verifies identity; authorization checks permissions",
+    "MVC is Model-View-Controller architecture",
+    "Database index improves query performance",
+    "GET requests fetch data; POST requests send data",
+    "JWT is JSON Web Token for authentication",
+    "Caching stores data temporarily to improve performance",
+    "Web server handles HTTP requests and serves content"
+  ],
+  sales: [
+    "B2B sales is business to business",
+    "CRM is Customer Relationship Management",
+    "Lead generation is finding potential customers",
+    "Inbound sales respond to leads; outbound sales initiate contact",
+    "Cold calling is calling potential customers without prior contact",
+    "Sales funnel represents customer journey from awareness to purchase",
+    "Handling objections is addressing customer concerns",
+    "Upselling is selling a higher-value product",
+    "Customer retention is keeping existing customers loyal",
+    "Closing a deal is finalizing a sale"
+  ]
+};
+
+// Start assessment
+startBtn.addEventListener("click", async () => {
+    unlockSpeech();
+    const role = roleSelect.value.trim();
+
+    // Role not selected → show neon alert
+    if (!role) {
+        await showNeonAlert("Please select a role before starting.", "Role Required");
+        return;
+    }
+
+    currentQuestion = 0;
+    userAnswers = [];
+
+    // show question section
+    roleSelection.classList.add("hidden");
+    assessmentSection.classList.remove("hidden");
+
+    showQuestion();
+});
+
+function speakText(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1;          // speed (1 = normal)
+    utterance.pitch = 1;         // tone
+    utterance.volume = 1;        // loudness
+    speechSynthesis.cancel();    // stop previous speech if any
+    speechSynthesis.speak(utterance);
+}
+let voicesLoaded = false;
+
+function loadVoices() {
+    return new Promise(resolve => {
+        let voices = speechSynthesis.getVoices();
+
+        if (voices.length !== 0) {
+            voicesLoaded = true;
+            resolve(voices);
+            return;
+        }
+
+        // Chrome loads voices asynchronously
+        speechSynthesis.onvoiceschanged = () => {
+            voicesLoaded = true;
+            resolve(speechSynthesis.getVoices());
+        };
+    });
+}
+
+async function speakText(text) {
+    if (!voicesLoaded) {
+        await loadVoices();
+    }
+
+    speechSynthesis.cancel(); // stop previous speech
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1;
+    utter.pitch = 1;
+    utter.volume = 1;
+
+    // optional: choose English-India voice if available
+    const voices = speechSynthesis.getVoices();
+    const indianVoice = voices.find(v => v.lang.includes("en-IN"));
+    if (indianVoice) utter.voice = indianVoice;
+
+    speechSynthesis.speak(utter);
+}
+
+
+// Show question
+function showQuestion() {
+  const role = roleSelect.value;
+  
+  // Check if all questions are done
+  if (currentQuestion >= questions[role].length) {
+    showFeedback();
+    return;
+  }
+
+  // Show the current question
+  const question = questions[role][currentQuestion];
+questionText.textContent = question;
+
+setTimeout(() => {
+    speakText(question);   // 🔥 guaranteed to work after unlock
+}, 200); // small delay helps Chrome start TTS
+
+
+  // Start the timer
+  startTimer();
+
+  // Update progress bar
+  const totalQuestions = questions[role].length;
+  const progressPercent = ((currentQuestion) / totalQuestions) * 100;
+  document.getElementById('progressBar').style.width = progressPercent + "%";
+}
+
+function showNeonAlert(message, title = "Alert") {
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'neon-alert-overlay';
+
+        const alert = document.createElement('div');
+        alert.className = 'neon-alert';
+        alert.innerHTML = `
+            <div class="neon-alert-icon">⚠️</div>
+            <h3>${title}</h3>
+            <p>${message}</p>
+            <button class="neon-alert-btn confirm">Got it</button>
+        `;
+
+        overlay.appendChild(alert);
+        document.body.appendChild(overlay);
+
+        const confirmBtn = alert.querySelector('.confirm');
+
+        confirmBtn.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                document.body.removeChild(overlay);
+                resolve(true);
+            }
+        });
+
+        document.addEventListener('keydown', function esc(e) {
+            if (e.key === "Escape") {
+                document.body.removeChild(overlay);
+                document.removeEventListener('keydown', esc);
+                resolve(true);
+            }
+        });
+    });
+}
+
+// Timer
+function startTimer() {
+  let time = 30;
+  clearInterval(timer);
+  timer = setInterval(() => {
+    time--;
+    timeLeft.textContent = time;
+    if (time <= 0) {
+      clearInterval(timer);
+      saveAnswer(""); // save empty answer if timeout
+      nextQuestion();
+    }
+  }, 1000);
+}
+
+// Speech Recognition
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = (event) => {
+    const speech = Array.from(event.results).map(r => r[0].transcript).join('');
+    answerInput.value = speech;
+  };
+
+  recognition.onend = () => {
+    recognizing = false;
+    micBtn.textContent = "🎤 Speak";
+  };
+
+  micBtn.addEventListener('click', () => {
+    if (recognizing) recognition.stop();
+    else {
+      recognition.start();
+      recognizing = true;
+      micBtn.textContent = "⏹ Stop";
+    }
+  });
+}
+
+// Save answer
+function saveAnswer(ans) {
+  userAnswers.push(ans);
+}
+
+// Next question
+function nextQuestion() {
+  clearInterval(timer);
+  currentQuestion++;
+  showQuestion();
+}
+
+// Submit answer
+submitAnswerBtn.addEventListener('click', () => {
+  if (recognition) recognition.stop();
+  const ans = answerInput.value.trim();
+  saveAnswer(ans);
+  answerInput.value = "";
+
+  const role = roleSelect.value;
+  if (currentQuestion >= questions[role].length - 1) {
+    showFeedback();
+  } else {
+    currentQuestion++;
+    showQuestion();
+  }
+});
+
+// Show feedback
+function showFeedback() {
+    document.getElementById("instructions").style.display = "none";
+
+  clearInterval(timer);
+  assessmentSection.classList.add('hidden');
+  feedbackSection.classList.remove('hidden');
+
+  const role = roleSelect.value;
+  const answers = correctAnswers[role];
+  let totalScore = 0;
+  let feedbackHTML = "<ol>";
+
+  userAnswers.forEach((ans, i) => {
+    const userAnswer = (ans || "").toLowerCase();
+    const correctAnswer = answers[i].toLowerCase();
+  // Split correct answer into keywords
+const keywords = correctAnswer.split(/[\s,.;]+/).filter(w => w.length > 2); // ignore tiny words
+let matchedCount = 0;
+
+// Count how many keywords are present in user answer
+keywords.forEach(word => {
+  if (userAnswer.includes(word)) matchedCount++;
+});
+
+// Match only if user covers at least 50% of keywords
+const matchThreshold = 0.5; // 50%
+const matched = (matchedCount / keywords.length) >= matchThreshold;
+
+if (matched) totalScore++;
+
+    feedbackHTML += `<li>
+      <strong>Q:</strong> ${questions[role][i]}<br>
+      <strong>Your Answer:</strong> ${ans || "<em>No answer</em>"}<br>
+      <strong>Correct Answer:</strong> ${answers[i]}<br>
+      <strong>${matched ? "✅ Correct" : "❌ Incorrect"}</strong>
+    </li>`;
+  });
+
+  feedbackHTML += "</ol>";
+  feedbackHTML += `<p><strong>Total Score:</strong> ${totalScore} / ${answers.length} (${totalScore * 10}%)</p>`;
+sessionStorage.setItem("lastRole", role);
+sessionStorage.setItem("lastScore", totalScore + " / " + answers.length);
+sessionStorage.setItem("lastPercentage", (totalScore * 10) + "%");
+
+
+
+  feedbackText.innerHTML = feedbackHTML;
+  
+}
+
+// Finish
+finishBtn.addEventListener('click', () => {
+  window.location.href = 'home.html';
+});
+
+</script>
+</body>
+</html>
